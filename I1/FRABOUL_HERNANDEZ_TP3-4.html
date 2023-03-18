@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>TP3</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <p>Killian FRABOUL<br>
+Luc HERNANDEZ<br>
+INM-S4-01</p>
+<h1 id="tp3">TP3</h1>
+<h2 id="31-déclaration-de-données-en-langage-dassemblage">3.1) Déclaration de données en langage d'assemblage</h2>
+<p>Après avoir effectué les commandes fournies par le TP, on constate que les informations affichées par la commande <code>arm-eabi-objdump -j .data -s donnees.o</code> sont en hexadecimal avec 4 blocs de 4  octets par ligne ( soit 16 octets ).<br>
+On peut le constater avec les adresses qui sont écrites sur la gauche 0010 étant l'adresse</p>
+<p><img src="file:////home/hernaluc/I1/donnees.png" alt="Alt text">
+<em>Ici les couleurs à gauche et à droite correspondent entre elles</em></p>
+<p>Sur la première ligne, on obtient : <code>410f626f 6e6a6f75 72004203 11223456</code>, ce qui correspond à :<br>
+<code>entier 65 -&gt; 41</code>, <code>entier 15 -&gt; 0f</code><br>
+<code>Les caractères de &quot;bonjour&quot; -&gt; 62 6f 6e 6a 6f 75 72</code><br>
+<code>Le signal de fin de string -&gt; 00</code><br>
+<code>Le couple entier 66 (&lt;=&gt; caractère B) - entier 3 -&gt; 42 03</code><br>
+<code>Tableau d'entiers de 16 bits -&gt; 1122 3456</code><br>
+On est ensuite forcé de changer de ligne etant donné qu'on a utilisé nos 16 octets.<br>
+Sur la deuxième ligne on a donc la suite du tableau :<br>
+<code>fafd</code> puis <code>Entier 65 -&gt; 41</code>.<br>
+On constate que les chaînes de caractères sont simplement des suites d'entiers qui se finissent par 00 pour indiquer une fin de chaîne.</p>
+<p>Après avoir créé le fichier donnees2.s en remplaçant les entiers par des entiers 32 bits, je constate bien que j'ai 4 octets de réservés pour l'entier, soit 32 bits.</p>
+<p>On a donc:</p>
+<pre><code class="language-asm">@ Tous les .word sont des entiers 32 bits
+    .data
+aa: .byte 65    @ .byte 0x41 est un char donc on ne change pas
+oo: .word 15   @ .byte  0x0f On a ici un entier code sur 32 bits
+cc: .asciz &quot;bonjour&quot;
+rr: .byte 66   @ .byte 0x42 est un char donc on ne change pas
+    .word 3
+T: .word 0x1122
+   .word 0x3456
+   .word  0xfafd
+xx: .word 65
+</code></pre>
+<p><img src="file:////home/hernaluc/I1/donnees2.png" alt="Alt text">
+<em>Encore une fois, on a correspondance entre les couleurs</em></p>
+<h2 id="32-accès-à-la-mémoire--échange-mémoire--registres">3.2) Accès à la mémoire : échange mémoire / registres</h2>
+<h3 id="321-lecture-dun-mot-de-32-bits">3.2.1) Lecture d'un mot de 32 bits</h3>
+<p>Les deux valeurs affichées par accesmem sont l'adresse de xx et la valeur de xx.</p>
+<p>0001f440 &lt;=&gt; 128064 &lt;=&gt; Une adresse mémoire<br>
+0000010a &lt;=&gt; 266 &lt;=&gt; xx</p>
+<p><code>LDR r5, LD_xx</code> met l'adresse de xx dans r5<br>
+<code>LDR r6, [r5]</code> met la valeur à l'adresse contenue par r5 dans r6</p>
+<h3 id="322-lecture-de-mots-de-tailles-différentes">3.2.2) Lecture de mots de tailles différentes</h3>
+<p>Pour afficher les adresses et leurs valeurs, nous avons utilisé les fonctions qui étaient déjà fournies à la suite du programme.</p>
+<pre><code class="language-assembly">      MOV r1, r3
+      BL EcrNdecimal32
+      MOV r1, r4
+      BL EcrNdecimal32 @ Car D1 fait 32b
+      MOV r1, r5
+      BL EcrNdecimal32
+      MOV r1, r6
+      BL EcrNdecimal16 @ Car D2 fait 16b
+      MOV r1, r7
+      BL EcrNdecimal32
+      MOV r1, r8
+      BL EcrNdecimal8  @ Car D3 fait 8b
+</code></pre>
+<p>On constate bien que les différentes valeurs données dans le fichier donnees2.s sont affichées ainsi que leurs adresses.<br>
+L'écart d'octets entre D1 et D2 (4o) est plus grand que celui entre D2 et D3 (2o) car D1 fait 4o et donc prend plus de place que D2 (2o). Si on rajoutait un D4 il serait 1 octet plus loin dans la mémoire car D3 fait 1o.</p>
+<h3 id="323-ecriture-en-mémoire">3.2.3) Ecriture en mémoire</h3>
+<p>Pour faire 3 fois la même opération, il a suffit de changer la référence qu'on utitlisait ainsi que les fonctions utilisées pour afficher les chiffres.</p>
+<pre><code>00000000
+0
+fffffff6
+-10
+0000
+0
+fff6
+-10
+00
+0
+f6
+-10
+</code></pre>
+<p>On compile évidemment le programme en prenant en compte es.o, car on utilise les fonctions qui y sont stockées.<br>
+Ici on voit bien que la valeur commence par être 0 puis qu'elle est changée en -10.<br>
+On voit ici aussi comment le complément à deux fonctionne. On voit bien que le bit de poids fort est répété sur la gauche.</p>
+<h2 id="33">3.3)</h2>
+<p>Pour afficher le au revoir, nous avons bel et bien utilisé la méthode de l'indirection avec un pointeur relais.
+Pour ce faire, il nous a suffit de stocker l'adresse de l'asciz dans un word pour ensuite load cette adresse dans r1 puis écrire le mot qui se trouver dans le registre 1 avec EcrChaine.
+On a donc :</p>
+<pre><code>    .data
+cc: @ ne pas modifier cette partie
+    .byte 0x42
+    .byte 0x4f
+    .byte 0x4e
+    .byte 0x4a
+    .byte 0x4f
+    .byte 0x55
+    .byte 0x52
+    .byte 0x00     @ code de fin de chaine
+    @ la suite pourra etr emofifiee
+    .word 12
+    .word 0x11223344
+
+
+rv: .asciz &quot;au revoir...&quot;
+
+    .text
+    .global main
+main:
+
+@ impression de la chaine de caractere d'adresse cc
+     ldr r1, LD_cc
+     bl EcrChaine
+
+@ impression de la chaine &quot;au revoir...&quot;
+    ldr r1, LD_rv
+    bl EcrChaine
+
+@ modification de la chaine d'adresse cc
+@ A COMPLETER
+
+@ impression de la chaine cc modifiee
+     ldr r1, LD_cc
+     bl EcrChaine
+
+fin: B exit  @ terminaison immédiate du processus (plus tard on saura faire mieux)
+
+LD_cc: .word cc
+LD_rv: .word rv
+</code></pre>
+<p>Pour ce qui est du passage de &quot;BONJOUR&quot; à &quot;bonjour&quot;, nous avons décidé de faire le ORR caractères par caractère, pour ensuite l'afficher sans soucis, et donc sans boucles. Nous avons donc a chaque fois modifié la valeur enregistrée dans le registre r2 pour aller au caractère suivant après à chaques fois.</p>
+<pre><code>LDRB r3, [r2]
+ORR r3, r3, #32
+STRB r3, [r2]
+ADD r2, r2, #1
+</code></pre>
+<p>Ce bloc de code a été répété plusieurs fois pour pouvoir faire tout les caractères composant le mot BONJOUR.
+On obtient comme résultat final:</p>
+<pre><code>BONJOUR
+au revoir...
+bonjour
+</code></pre>
+<h2 id="34-alignements-et-petits-bouts">3.4) Alignements et &quot;petits bouts&quot;</h2>
+<p>On constate en lançant notre programme alignements que le chiffre codé sur 32 bits ne correspond pas à la valeur affichée par le programme:</p>
+<pre><code>01
+02
+04
+0402010d
+08
+</code></pre>
+<p>Comme prévu; le .balign permet q l'entier d'être placé à une adresse multiple de 4 et il s'affiche maintenant correctement:</p>
+<pre><code>01
+02
+04
+0a0b0c0d
+08
+</code></pre>
+<p>Pour ce qui est de la reproduction de l'expérience, on constate bien que, si on déclare un hword juste après b, on a un problème:</p>
+<pre><code>...
+b: .byte 0x08
+c: .hword 0xABCD
+...
+@impression du mot c
+        LDR r2, LD_c
+        LDRH r3, [r2]
+        MOV r1, r3
+        BL EcrHexa16
+...
+LD_c: .word c
+</code></pre>
+<pre><code>01
+02
+04
+0a0b0c0d
+08
+cd08
+</code></pre>
+<p>Alors que si on ajoute un .balign 2, on n'a plus le problème</p>
+<pre><code>01
+02
+04
+0a0b0c0d
+08
+abcd
+</code></pre>
+<h3 id="342-question-de-petits-bouts">3.4.2) Question de &quot;Petits bouts&quot;</h3>
+<p>Pour ce passage, on peut retrouver les 3 chiffres définis sur la ligne 1f438, où on peut les trouver écrits octets par octets (lus de droite a gauche étant donné que nous sommes en little endian):</p>
+<pre><code>18000000 0a010000 2a000000
+</code></pre>
+<p>Respectivement 24 266 42</p>
+<p>On peut faire de même avec accesmem2, où on trouve les chiffres sur la ligne 1f470, même si il faire attention au fait qu'il ne sont pqs tous en 32 bits.</p>
+<pre><code>0a010000 2a000c00
+</code></pre>
+<p>Respectivement 266 42 12.</p>
+
+        
+        
+    </body>
+    </html>

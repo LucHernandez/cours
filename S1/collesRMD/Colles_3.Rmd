@@ -1,0 +1,220 @@
+---
+title: "Colles 3"
+output: html_document
+date: "2023-03-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sujet 1 :
+
+
+```{r}
+# Définir les paramètres de la loi normale
+mu <- 1
+sigma <- 1
+```
+```{r}
+# Calculer l'intervalle centré en µ pour une probabilité de 0.99
+intervalle <- qnorm(c(0.005, 0.995), mean = mu, sd = sigma)
+intervalle
+
+# Représenter la densité et la fonction de répartition de la loi normale
+x <- seq(mu - 4*sigma, mu + 4*sigma, length = 100)
+plot(x, dnorm(x, mean = mu, sd = sigma), type = "l", 
+     xlab = "X", ylab = "Densité", main = "Densité et fonction de répartition")
+lines(x, pnorm(x, mean = mu, sd = sigma), col = "red")
+```
+
+La réponse à la première question est : on peut garantir que plus de 99 fois sur 100 on observera une réalisation de X dans l'intervalle [mu - 2.58sigma, mu + 2.58sigma].
+La figure produite montre la densité et la fonction de répartition de la loi normale N(1, 1) sur l'intervalle [-3, 5]. 
+On peut clairement voir que la densité est maximale en mu=1 et décroît symétriquement autour de cette valeur. La fonction de répartition commence à 0 pour les valeurs 
+les plus petites de X, augmente de manière continue jusqu'à 1 pour les valeurs les plus grandes de X et passe par la valeur 0.5 en mu=1. 
+Les éléments ajoutés pour la lecture graphique du quantile d'ordre 65% sont la droite verticale en pointillés bleus et le texte "Quantile 65%" à côté de la droite. 
+Le point d'intersection de la droite bleue avec la courbe rouge de la fonction de répartition donne la valeur correspondant au quantile d'ordre 65%
+
+# Sujet 2 :
+
+```{r}
+# Définir les paramètres de la loi normale
+mu <- 1
+sigma <- 1
+```
+
+## Question 1 :
+
+```{r}
+seuil <- qnorm(0.995, mean = 1, sd = 1) # quantile d'ordre 99.5%
+intervalle <- c(1 - seuil, 1 + seuil) # intervalle centré en µ
+intervalle
+```
+
+## Question 2 :
+
+```{r}
+x <- seq(0, 2, length = 1000)
+densite <- dnorm(x, mean = 1, sd = 1)
+plot(x, densite, type = "l", xlim = c(0, 2), ylim = c(0, 0.45), xlab = "X", ylab = "Densité de probabilité")
+abline(v = 1 - 1, col = "green", lty = 2)
+abline(v = 1 + 1, col = "green", lty = 2)
+x2 <- seq(1 - 1, 1 + 1, length = 1000)
+y2 <- dnorm(x2, mean = 1, sd = 1)
+polygon(c(x2, rev(x2)), c(rep(0, length(x2)), rev(y2)), col = "red", border = NA, density = 10, angle = 45)
+text(0.6, 0.2, expression(P(X <= mu - sigma)), col = "green", pos = 4)
+text(1.6, 0.2, expression(P(X >= mu - sigma, mu - sigma <= X <= mu + sigma)), col = "red", pos = 2)
+```
+```{r}
+p <- pnorm(1 - 1, mean = 1, sd = 1)
+p
+```
+On peut voir que l'intervalle centré en µ qui garantit que plus de 99 fois sur 100 on observera une réalisation de X est environ [-1.64, 3.64]. 
+La densité de X est représentée sur cet intervalle, ainsi que les contours de P(X <= µ - σ) en vert et P(X >= µ - σ, X ∈ [µ - σ, µ + σ]) en rouge. 
+La valeur de P(X <= µ - σ) est d'environ 0.1587
+
+# Sujet 3 :
+
+```{r}
+# Définir les paramètres de la loi normale
+mu <- 3
+sigma <- 1
+```
+
+```{r}
+# Fonction densité de X
+dx <- function(x) dnorm(x, mean = mu, sd = sigma)
+
+# Intervalle [mu-3sigma, mu+3sigma]
+x <- seq(mu-3*sigma, mu+3*sigma, by = 0.01)
+
+# Densité de X sur l'intervalle [mu-3sigma, mu+3sigma]
+plot(x, dx(x), type = "l", col = "blue", lwd = 2, ylab = "Densité de X", 
+     xlab = "X", main = "Représentation graphique des événements A, B et C")
+
+# Événements A, B, C
+A <- mu - sigma
+B <- mu + sigma
+C <- c(mu - 3*sigma, A, B, mu + 3*sigma)
+
+# Représentation graphique des événements
+segments(A, 0, A, dx(A), col = "red", lwd = 3)
+segments(B, 0, B, dx(B), col = "green", lwd = 3)
+segments(C[1], 0, C[2], 0, col = "purple", lwd = 3)
+segments(C[3], 0, C[4], 0, col = "purple", lwd = 3)
+
+# Probabilité de C
+pc <- pnorm(A, mean = mu, sd = sigma, lower.tail = FALSE) + pnorm(B, mean = mu, sd = sigma)
+pc <- 1 - pc
+abline(h = pc, col = "green")
+
+# Probabilité de A|C
+pac <- pnorm(A, mean = mu, sd = sigma, lower.tail = FALSE)
+pac <- pac/pc
+```
+
+
+# Sujet 4 :
+
+```{r}
+# Paramètres de la loi normale X
+mu <- 2
+sigma <- sqrt(3)
+```
+
+```{r}
+# Vecteur des quantiles d'ordre (0.1, 0.2, ..., 0.9) de U
+qu <- qnorm(seq(0.1, 0.9, by=0.1))
+
+# Vecteur des quantiles d'ordre (0.1, 0.2, ..., 0.9) de X
+qx <- qnorm(seq(0.1, 0.9, by=0.1), mean=mu, sd=sigma)
+
+# Nuage de points représentant les quantiles de U en abscisse et de X en ordonnée
+plot(qu, qx, xlab="Quantiles d'ordre alpha de U", ylab="Quantiles d'ordre alpha de X")
+
+# Calcul de la droite de régression linéaire entre les deux variables
+regression <- lm(qx ~ qu)
+
+# Affichage de la droite superposée au nuage de points
+abline(regression)
+
+# Expression du quantile d'ordre alpha de X en fonction du quantile d'ordre alpha de U
+quantile_X_alpha <- function(alpha) {
+  mu + sigma * qnorm(alpha)
+}
+```
+
+#Sujet 5 :
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+# Définition des paramètres
+n <- 2
+p <- 2/n
+
+# Loi Binomiale B(n, 2/n)
+x <- 0:n
+probas_x <- dbinom(x, n, p)
+mode_x <- x[which.max(probas_x)]
+
+# Loi de Poisson P(2)
+y <- 0:10
+probas_y <- dpois(y, 2)
+mode_y <- y[which.max(probas_y)]
+
+```
+
+
+```{r}
+# Graphiques
+ggplot() +
+  # Loi Binomiale B(n, 2/n)
+  geom_bar(aes(x, probas_x), stat = "identity", fill = "blue", alpha = 0.5) +
+  geom_vline(xintercept = mode_x, linetype = "dashed", color = "blue") +
+  scale_x_continuous(limits = c(0, n), breaks = seq(0, n, by = 1)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(title = paste0("Loi Binomiale B(", n, ", ", p, ")"),
+       x = "Valeurs de X",
+       y = "Probabilités") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        plot.margin = unit(c(1,1,1,1), "cm")) +
+  
+  # Loi de Poisson P(2)
+  geom_bar(aes(y, probas_y), stat = "identity", fill = "red", alpha = 0.5) +
+  geom_vline(xintercept = mode_y, linetype = "dashed", color = "red") +
+  scale_x_continuous(limits = c(0, 10), breaks = seq(0, 10, by = 1)) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(title = "Loi de Poisson P(2)",
+       x = "Valeurs de Y",
+       y = "Probabilités") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        plot.margin = unit(c(1,1,1,1), "cm"))
+```
+
+# Sujet 6 :
+
+```{r}
+# Définition de X et Y
+X <- c(1/3, 0, 1/3, 0, 1/3, 0)
+Y <- rbinom(1, 1, 1/3)
+```
+
+```{r}
+# Représentation de la loi de probabilité de X et de sa fonction de répartition
+barplot(X, names.arg=1:6, xlab="Valeurs de X", ylab="Probabilités", main="Loi de probabilité de X")
+plot(ecdf(X), xlab="Valeurs de X", ylab="Fonction de répartition", main="Fonction de répartition de X")
+abline(h=0.5, lty=2)
+
+# Calcul des probabilités
+PX <- sum(X[2:5])
+PY <- dbinom(0, 1, 1/3)
+PXY <- sum(X[2:5] * dbinom(0, 1, 1/3)[2:5])
+
+# Affichage des résultats
+print(PX)
+print(PY)
+print(PXY)
+```

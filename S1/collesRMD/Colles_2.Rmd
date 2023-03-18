@@ -1,0 +1,188 @@
+---
+title: "Colle 2"
+output: html_document
+date: "2023-03-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Sujet 1
+
+```{r chargment}
+data(mtcars)
+```
+
+## Question 1 :
+
+```{r}
+boxplot(mpg ~ cyl, data = mtcars, 
+        main = "Effet de la variable cyl sur mpg", 
+        xlab = "Nombre de cylindres", 
+        ylab = "Miles per gallon",
+        col = "grey",
+        notch = FALSE)
+
+text(1, 10, "2 paires", pos = 3)
+text(2, 10, "3 paires", pos = 3)
+text(3, 10, "4 paires", pos = 3)
+
+legend("topright", legend = "Nombre de cylindres", bty = "n", cex = 0.8)
+
+means <- tapply(mtcars$mpg, mtcars$cyl, mean)
+abline(h = means, col = "red")
+```
+
+## Question 2 :
+
+Les boxplots permettent de visualiser la distribution de la variable mpg pour chaque valeur de cyl. On peut observer que les médianes (traits noirs à l'intérieur de chaque boîte) sont plus élevées pour les valeurs de cyl plus faibles. De plus, les boîtes pour 2 paires de cylindres et 3 paires de cylindres sont relativement similaires en taille, tandis que la boîte pour 4 paires de cylindres est plus petite, ce qui suggère que les véhicules avec plus de cylindres ont tendance à avoir une consommation de carburant plus faible. Les moyennes (lignes rouges) renforcent cette tendance, car elles diminuent à mesure que le nombre de cylindres augmente. En conclusion, il semble que la variable cyl a un effet sur mpg et que les véhicules avec moins de cylindres ont tendance à avoir une consommation de carburant plus élevée.
+
+# Sujet 2 :
+
+```{r chargement}
+data(mtcars)
+```
+
+## Question 1
+
+```{r}
+boxplot(mpg ~ carb, data = mtcars, main = "Boxplots de mpg selon carb",
+        xlab = "Nombre de carburateurs", ylab = "Miles per gallon (mpg)",
+        col = "grey", border = "black")
+
+# Ajouter les moyennes
+means <- tapply(mtcars$mpg, mtcars$carb, mean)
+points(x = 1:length(means), y = means, pch = 19, col = "red")
+```
+
+## Question 2 :
+
+Les échantillons des véhicules à 6 ou 8 carburateurs ne semblent pas très représentatifs, car ils ne contiennent que 3 observations chacun, ce qui peut conduire à des conclusions erronées. La suite des quatre premiers boxplots montre une tendance à la baisse de la consommation de carburant avec l'augmentation du nombre de carburateurs,avec une exception pour les véhicules à 3 carburateurs. L'écart entre les moyennes des échantillons à deux et quatre carburateurs peut être dû à des facteurs tels que la différence de puissance et de taille des moteurs, ou à des choix de conception spécifiques du constructeur automobile. En général, la variable carb semble avoir un effet sur la consommation de carburant, bien que des facteurs externes puissent également influencer cette relation.
+
+# Sujet 3
+
+```{r chargement}
+data(mtcars)
+```
+
+## Question 1 :
+
+Les variables mpg et wt sont des variables numériques continues. On peut les visualiser à l'aide d'un nuage de points où l'abscisse représente wt et l'ordonnée représente mpg. Pour tracer ce nuage de points, on peut utiliser la fonction plot() en passant les vecteurs mpg et wt en arguments. On peut ajouter un titre avec la fonction main() :
+
+```{r}
+plot(wt, mpg, main = "Relation entre mpg et wt")
+
+#Pour ajouter la droite des moindres carrés en rouge, on peut utiliser la fonction abline() en passant les coefficients de cette droite (obtenus avec la fonction lm()) en arguments :
+
+coefficients <- lm(mpg ~ wt)$coefficients
+abline(coefficients, col = "red")
+```
+
+## Question 2 :
+
+Le graphique obtenu permet de visualiser la relation entre les variables mpg et wt. On peut voir que les points sont plutôt alignés autour d'une droite qui décroît lorsque wt augmente. La droite des moindres carrés confirme cette tendance en passant au plus près des points. On peut donc conclure qu'il y a une corrélation négative entre les variables mpg et wt, c'est-à-dire que plus le poids du véhicule (wt) est élevé, plus sa consommation en carburant (mpg) est élevée.
+
+# Sujet 4 :
+
+```{r chargement}
+data(mtcars)
+```
+
+```{r}
+# Chargement de la base de données mtcars
+data(mtcars)
+
+# Tracé de l'histogramme de qsec
+hist(mtcars$qsec, freq=FALSE, xlim=c(min(mtcars$qsec), max(mtcars$qsec)),
+     main="Histogramme de la variable qsec", xlab="qsec", ylab="Densité")
+
+# Calcul de la moyenne et de la médiane de qsec
+mean_qsec <- mean(mtcars$qsec)
+median_qsec <- median(mtcars$qsec)
+
+# Ajout des droites moyenne et médiane en rouge et vert respectivement
+abline(v = mean_qsec, col = "red")
+abline(v = median_qsec, col = "blue")
+
+# Calcul des paramètres mu et sd pour la loi normale
+mu <- mean(mtcars$qsec)
+sd <- sd(mtcars$qsec)
+
+# Tracé de la densité de la loi normale avec les paramètres mu et sd en rouge
+curve(dnorm(x, mean = mu, sd = sd), add = TRUE, col = "red")
+```
+
+## Interprétation :
+
+Le graphique montre que la distribution de qsec n'est pas parfaitement gaussienne. La densité de la loi normale tracée en rouge ne correspond pas parfaitement à la forme de l'histogramme. De plus, la valeur médiane de qsec est légèrement décalée vers la gauche par rapport à la moyenne, ce qui suggère une légère asymétrie de la distribution. Cela indique que le modèle gaussien pourrait ne pas être parfaitement adapté à cette variable.
+
+# Sujet 5 :
+
+```{r chargement}
+data(mtcars)
+```
+
+## Question 1 :
+
+```{r}
+tab <- table(mtcars$gear, mtcars$am)
+tab
+```
+
+On remarque que la variable gear prend les valeurs 3, 4 ou 5, tandis que la variable am prend les valeurs 0 ou 1. On peut calculer les distributions conditionnelles de la variable gear en fonction des modalités de la variable am :
+
+```{r}
+# distribution conditionnelle de gear sachant am = 0
+prop.table(tab[,1])
+
+# distribution conditionnelle de gear sachant am = 1
+prop.table(tab[,2])
+```
+
+## Question 2 :
+
+```{r}
+# création du graphique
+barplot(rbind(prop.table(tab[,1]), prop.table(tab[,2])),
+        beside = TRUE,
+        legend.text = c("0", "1"),
+        args.legend = list(title = "am"),
+        ylim = c(0, 0.7),
+        main = "Répartition de gear selon la modalité de am")
+
+# ajout de labels sur les barres
+text(c(0.85, 1.85, 2.85), prop.table(tab[,1]) + 0.02, round(prop.table(tab[,1]), 3))
+text(c(1.15, 2.15, 3.15), prop.table(tab[,2]) + 0.02, round(prop.table(tab[,2]), 3))
+```
+
+Le graphique montre la répartition de la variable gear selon la modalité de la variable am. On observe que la distribution de gear diffère sensiblement selon la modalité de am : lorsque am=0, la modalité la plus fréquente pour gear est 3 (62,5% des cas), tandis que lorsque am=1, la modalité la plus fréquente pour gear est 4 (40% des cas). Ces résultats suggèrent donc qu'il existe un lien entre les variables gear et am, et que ces dernières ne sont pas indépendantes.
+
+# Sujet 6 :
+
+```{r chargement}
+data(mtcars)
+```
+
+## Question 1 :
+
+La variable carb représente le nombre de carburateurs d'un véhicule, elle est donc de nature discrète. Pour représenter la distribution observée, on peut utiliser un diagramme en bâtons (ou histogramme avec des barres disjoints, vu qu'il n'y a que quelques valeurs possibles).
+
+```{r}
+# Diagramme en bâtons de la distribution de la variable carb
+hist(mtcars$carb, breaks = seq(0.5, 8.5, 1), col = "lightblue",
+     xlab = "Nombre de carburateurs", main = "Distribution de la variable carb")
+
+```
+
+Pour représenter la fonction de répartition empirique, on peut utiliser la fonction ecdf() de R.
+
+```{r}
+# Fonction de répartition empirique de la variable carb
+plot(ecdf(mtcars$carb), verticals = TRUE, col = "magenta", 
+     xlab = "Nombre de carburateurs", main = "Fonction de répartition empirique")
+```
+
+## Question 2 :
+
+Les quantiles empiriques peuvent être lus sur la fonction de répartition empirique. Par exemple, pour trouver le premier décile (d'ordre 10%),on peut chercher la valeur de la variable correspondant à une probabilité de 0.1 sur l'axe vertical de la fonction de répartition empirique. Ici, on trouve une valeur d'environ 1. Cette méthode est cependant moins précise qu'un calcul exact, notamment pour des échantillons de petite taille.

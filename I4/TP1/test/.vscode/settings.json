@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "lecture_caracteres.h": "c",
+        "stdio.h": "c",
+        "analyse_lexicale.h": "c"
+    }
+}

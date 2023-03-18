@@ -1,0 +1,33 @@
+p cnf 4 12
+c On constate qu'on a quelque chose qui grandit beaucoup quand dim augmente.
+c Admettons le terme initialisation du plateau comme le fait de dire qu'on ne peut pas avoir le meme terme sur la meme ligne ou la meme colonne
+c Ma solution nécessite dim^2 * sum(1->dim-1) + 1 clauses a faire rien que pour l'initialisation du plateau
+c On peut aussi calculer le nombre de variables necessaires. Il nous faut dim^3 variables rien que pour l'initialisation
+
+c Ici on enleve toutes les combinaisons pour la ligne 1 et pour le chiffre 1. Il faut donc le faire dim fois par ligne
+c tout en precisant qu'on doit avoir au moins une valeur sur les quatres de juste
+c Ces 7 lignes permettent tout simplement de faire un xor entre ces 4 variables
+1 2 3 4 0
+-1 -2 0
+-1 -3 0
+-1 -4 0
+-2 -3 0
+-2 -4 0
+-3 -4 0
+
+c Avancons en supposant l'initialisation du terrain terminee
+
+c On doit maintenant gerer les différents symboles posés sur le plateau
+c Supposons case a < case b
+c On veut traduire cela en logique :
+
+c b!=1
+c b=2 a=1
+c b=3 a=1 a=2
+c b=4 a=1 a=2 a=3
+
+c On peut donc traduire les différents états possibles de b par les variables abc
+c D'ici, il a fallu faire une groose simplification et transformation en CNF pour ensuite trouver comment le refaire via du code et l'entrer dans le fichier a fournir au sat solveur
+(a * !b * !c) * (x) +
+(!a * b * !c) * (x + y) * (!x + !y) +
+(!a * !b * c) * (x + y + z) * (!x + !y) * (!x + !z) * (!y + !z)
